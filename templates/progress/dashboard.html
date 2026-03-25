@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Progress - PeakForm{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">My Progress</h2>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5>Log Body Weight</h5>
+                <div id="weight-message"></div>
+                <div class="input-group mb-3">
+                    <input type="number" step="0.1" id="weight-input" class="form-control" placeholder="kg">
+                    <input type="date" id="weight-date" class="form-control">
+                    <button class="btn btn-dark" id="log-weight-btn">Log</button>
+                </div>
+                <canvas id="weightChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <h5>Recent Workouts</h5>
+                    <a href="{% url 'log_workout' %}" class="btn btn-sm btn-dark">+ Log Workout</a>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for log in logs %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ log.date }}</span>
+                        <span class="badge {% if log.completed %}bg-success{% else %}bg-secondary{% endif %}">
+                            {% if log.completed %}Done{% else %}Incomplete{% endif %}
+                        </span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted">No workouts logged yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+$('#weight-date').val(new Date().toISOString().split('T')[0]);
+
+$('#log-weight-btn').on('click', function() {
+    var weight = parseFloat($('#weight-input').val());
+    var date = $('#weight-date').val();
+    if (!weight || !date) {
+        $('#weight-message').html('<div class="alert alert-warning py-1">Please enter weight and date.</div>');
+        return;
+    }
+    $.ajax({
+        url: '{% url "log_weight" %}',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({weight_kg: weight, date: date}),
+        success: function(res) {
+            if (res.success) {
+                $('#weight-message').html('<div class="alert alert-success py-1">Weight logged!</div>');
+                $('#weight-input').val('');
+                loadChart();
+            }
+        }
+    });
+});
+
+var chartInstance = null;
+
+function loadChart() {
+    $.get('{% url "weight_history" %}', function(res) {
+        var labels = res.data.map(function(d) { return d.date; });
+        var values = res.data.map(function(d) { return d.weight; });
+        var ctx = document.getElementById('weightChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Weight (kg)',
+                    data: values,
+                    borderColor: '#212529',
+                    backgroundColor: 'rgba(33,37,41,0.1)',
+                    tension: 0.3,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: false } }
+            }
+        });
+    });
+}
+
+loadChart();
+</script>
+{% endblock %}

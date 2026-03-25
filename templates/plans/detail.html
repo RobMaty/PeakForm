@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}{{ plan.title }} - PeakForm{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>{{ plan.title }}</h2>
+        <span class="badge bg-secondary">{{ plan.get_level_display }}</span>
+        <p class="mt-3">{{ plan.description }}</p>
+        <p><i class="bi bi-calendar3"></i> Duration: <strong>{{ plan.duration_weeks }} weeks</strong></p>
+        <p>Price:
+            {% if plan.is_free %}
+            <span class="badge bg-success fs-6">Free</span>
+            {% else %}
+            <strong>${{ plan.price }}</strong>
+            {% endif %}
+        </p>
+
+        <h5 class="mt-4">Exercises</h5>
+        <ul class="list-group mb-4">
+            {% for ex in plan.exercises.all %}
+            <li class="list-group-item d-flex justify-content-between">
+                <span>{{ ex.name }}</span>
+                <span class="text-muted">{{ ex.sets }}x{{ ex.reps }} &nbsp;|&nbsp; Day {{ ex.day_of_week }}</span>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">No exercises added yet.</li>
+            {% endfor %}
+        </ul>
+
+        {% if user.is_authenticated %}
+        <button id="enroll-btn"
+                class="btn {% if is_enrolled %}btn-outline-danger{% else %}btn-dark{% endif %}"
+                data-plan-id="{{ plan.pk }}"
+                data-enrolled="{{ is_enrolled|lower }}">
+            {% if is_enrolled %}Unenroll{% else %}Enroll Now{% endif %}
+        </button>
+        <span id="enroll-msg" class="ms-3 text-success fw-bold"></span>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn-dark">Login to Enroll</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$('#enroll-btn').on('click', function() {
+    var planId = $(this).data('plan-id');
+    $.ajax({
+        url: '/plans/' + planId + '/enroll/',
+        type: 'POST',
+        success: function(res) {
+            $('#enroll-msg').text(res.message);
+            if (res.enrolled) {
+                $('#enroll-btn').removeClass('btn-dark').addClass('btn-outline-danger').text('Unenroll');
+            } else {
+                $('#enroll-btn').removeClass('btn-outline-danger').addClass('btn-dark').text('Enroll Now');
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
