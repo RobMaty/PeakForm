@@ -5,6 +5,11 @@ from django.http import JsonResponse
 from .models import Plan, UserPlan
 
 
+def landing(request):
+    plans = Plan.objects.all().order_by('-created_at')[:6]
+    return render(request, 'landing.html', {'plans': plans})
+
+
 def home(request):
     plans = Plan.objects.all().order_by('-created_at')
     return render(request, 'plans/home.html', {'plans': plans})

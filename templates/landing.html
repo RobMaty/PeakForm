@@ -1,0 +1,621 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeakForm — Transform Your Fitness Journey</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+
+        :root {
+            --green: #1a4731;
+            --green-mid: #2d6a4f;
+            --green-light: #52b788;
+            --orange: #e8692a;
+            --dark: #111;
+        }
+
+        body { background: #fff; color: #111; overflow-x: hidden; }
+
+        .lp-nav {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 0.75rem 0;
+        }
+        .lp-nav .brand {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--green);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+        .lp-nav .nav-link {
+            color: #333;
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            transition: color 0.2s;
+        }
+        .lp-nav .nav-link:hover { color: var(--green); }
+        .lp-nav .btn-signup {
+            background: var(--green);
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 0.45rem 1.2rem;
+            border: none;
+            transition: background 0.2s;
+        }
+        .lp-nav .btn-signup:hover { background: var(--green-mid); color: #fff; }
+
+        .hero {
+            background: linear-gradient(135deg, #0d2b1e 0%, #1a4731 60%, #2d6a4f 100%);
+            min-height: 88vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1400&q=80') center/cover no-repeat;
+            opacity: 0.18;
+        }
+        .hero-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--orange);
+            margin-bottom: 1rem;
+        }
+        .hero h1 {
+            font-size: clamp(2.4rem, 5vw, 3.8rem);
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.1;
+            letter-spacing: -1px;
+        }
+        .hero h1 span { color: var(--orange); }
+        .hero p {
+            color: rgba(255,255,255,0.72);
+            font-size: 1rem;
+            max-width: 420px;
+            line-height: 1.65;
+        }
+        .btn-primary-green {
+            background: var(--green-light);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            padding: 0.65rem 1.6rem;
+            border: none;
+            transition: background 0.2s, transform 0.15s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary-green:hover { background: var(--green-mid); color: #fff; transform: translateY(-1px); }
+        .btn-outline-white {
+            background: transparent;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            padding: 0.65rem 1.6rem;
+            border: 2px solid rgba(255,255,255,0.35);
+            transition: border-color 0.2s, background 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-outline-white:hover { border-color: #fff; background: rgba(255,255,255,0.08); color: #fff; }
+
+        .hero-card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 1.5rem;
+            color: #fff;
+        }
+        .hero-card .badge-pill {
+            background: var(--orange);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 20px;
+            padding: 0.3rem 0.8rem;
+            display: inline-block;
+            margin-bottom: 0.75rem;
+        }
+        .hero-card h5 { font-weight: 800; font-size: 1.1rem; margin-bottom: 0.4rem; }
+        .hero-card p { font-size: 0.82rem; color: rgba(255,255,255,0.65); margin: 0; }
+        .hero-img {
+            border-radius: 20px;
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            filter: brightness(0.88);
+        }
+
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--orange);
+            margin-bottom: 0.5rem;
+        }
+        .section-title {
+            font-size: clamp(1.7rem, 3vw, 2.4rem);
+            font-weight: 800;
+            color: var(--dark);
+            letter-spacing: -0.5px;
+        }
+        .section-sub {
+            color: #666;
+            font-size: 0.92rem;
+            max-width: 540px;
+            line-height: 1.65;
+        }
+
+        .features-section { padding: 80px 0; background: #fff; }
+        .feature-card {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            height: 100%;
+            transition: box-shadow 0.25s, transform 0.25s;
+        }
+        .feature-card:hover { box-shadow: 0 8px 32px rgba(26,71,49,0.1); transform: translateY(-3px); }
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--green) 0%, var(--green-mid) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.4rem;
+            margin-bottom: 1.1rem;
+        }
+        .feature-card h6 { font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; }
+        .feature-card p { font-size: 0.85rem; color: #777; line-height: 1.6; margin: 0; }
+
+        .tracking-section { padding: 80px 0; background: #f6f8f6; }
+        .tracking-img {
+            border-radius: 18px;
+            width: 100%;
+            height: 340px;
+            object-fit: cover;
+        }
+        .tracking-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #fff;
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--green);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            margin: 0.3rem 0.2rem;
+        }
+        .tracking-badge i { color: var(--green-light); }
+
+        .stats-section {
+            padding: 80px 0;
+            background: var(--green);
+        }
+        .stat-item { text-align: center; padding: 1rem; }
+        .stat-number {
+            font-size: clamp(2.2rem, 4vw, 3rem);
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+        .stat-number span { color: var(--orange); }
+        .stat-label { font-size: 0.82rem; color: rgba(255,255,255,0.65); margin-top: 0.4rem; font-weight: 500; }
+        .stat-divider { width: 1px; background: rgba(255,255,255,0.15); }
+
+        .plans-section { padding: 80px 0; background: #fff; }
+        .plan-card {
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+            transition: box-shadow 0.25s, transform 0.25s;
+            background: #fff;
+            height: 100%;
+        }
+        .plan-card:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.13); transform: translateY(-4px); }
+        .plan-card-img {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+        }
+        .plan-card-img-placeholder {
+            width: 100%;
+            height: 190px;
+            background: linear-gradient(135deg, var(--green) 0%, var(--green-mid) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.3);
+            font-size: 3rem;
+        }
+        .plan-card-body { padding: 1.25rem; }
+        .plan-level {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border-radius: 20px;
+            padding: 0.25rem 0.7rem;
+            display: inline-block;
+            margin-bottom: 0.6rem;
+        }
+        .level-beginner { background: #d1fae5; color: #065f46; }
+        .level-intermediate { background: #fef3c7; color: #92400e; }
+        .level-advanced { background: #fee2e2; color: #991b1b; }
+        .plan-card-body h6 { font-weight: 700; font-size: 0.98rem; margin-bottom: 0.4rem; }
+        .plan-card-body p { font-size: 0.8rem; color: #888; line-height: 1.5; margin-bottom: 0.75rem; }
+        .plan-price { font-size: 1.1rem; font-weight: 800; color: var(--green); }
+        .plan-price-free { color: var(--green-light); }
+        .plan-link {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--green);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .plan-link:hover { color: var(--orange); }
+
+        .feed-section { padding: 80px 0; background: #f6f8f6; }
+        .feed-card {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            height: 100%;
+            transition: box-shadow 0.25s, transform 0.25s;
+        }
+        .feed-card:hover { box-shadow: 0 10px 32px rgba(0,0,0,0.1); transform: translateY(-3px); }
+        .feed-card-img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+        }
+        .feed-card-body { padding: 1.25rem; }
+        .feed-tag {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--orange);
+            margin-bottom: 0.5rem;
+        }
+        .feed-card-body h6 { font-weight: 700; font-size: 0.92rem; line-height: 1.4; margin-bottom: 0.5rem; }
+        .feed-card-body p { font-size: 0.8rem; color: #888; line-height: 1.55; margin-bottom: 0.75rem; }
+        .feed-meta { font-size: 0.75rem; color: #aaa; }
+
+        .cta-section {
+            background: linear-gradient(135deg, #0d2b1e 0%, #1a4731 100%);
+            padding: 90px 0;
+            text-align: center;
+        }
+        .cta-section h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -0.5px;
+            margin-bottom: 1rem;
+        }
+        .cta-section p { color: rgba(255,255,255,0.6); font-size: 1rem; max-width: 480px; margin: 0 auto 2rem; line-height: 1.65; }
+        .btn-cta {
+            background: #fff;
+            color: var(--green);
+            font-weight: 800;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            padding: 0.75rem 2.2rem;
+            border: none;
+            transition: background 0.2s, transform 0.15s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-cta:hover { background: #e8f5ee; color: var(--green); transform: translateY(-2px); }
+
+        .lp-footer {
+            background: #0d2b1e;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .lp-footer .brand { font-weight: 800; font-size: 1.1rem; color: var(--green-light); text-decoration: none; }
+        .lp-footer .footer-link { color: rgba(255,255,255,0.45); font-size: 0.82rem; text-decoration: none; margin: 0 0.6rem; transition: color 0.2s; }
+        .lp-footer .footer-link:hover { color: #fff; }
+        .lp-footer .social-icon { color: rgba(255,255,255,0.4); font-size: 1.1rem; margin: 0 0.4rem; text-decoration: none; transition: color 0.2s; }
+        .lp-footer .social-icon:hover { color: var(--green-light); }
+        .lp-footer .copy { font-size: 0.78rem; color: rgba(255,255,255,0.25); }
+    </style>
+</head>
+<body>
+
+<nav class="lp-nav">
+    <div class="container d-flex align-items-center justify-content-between">
+        <a href="{% url 'landing' %}" class="brand">PeakForm</a>
+        <div class="d-none d-md-flex align-items-center gap-1">
+            <a href="{% url 'landing' %}" class="nav-link">Home</a>
+            <a href="#features" class="nav-link">About</a>
+            <a href="#plans" class="nav-link">Plans</a>
+            <a href="#feed" class="nav-link">Blog</a>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            {% if user.is_authenticated %}
+            <a href="{% url 'home' %}" class="nav-link d-none d-md-inline" style="color:#333; font-size:.88rem; font-weight:500;">Dashboard</a>
+            {% else %}
+            <a href="{% url 'login' %}" class="nav-link d-none d-md-inline">Login</a>
+            <a href="{% url 'register' %}" class="btn-signup">Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="container position-relative" style="z-index:1;">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="hero-label">Your fitness, elevated</div>
+                <h1>Transform Your<br><span>Fitness</span> Journey</h1>
+                <p class="mt-3 mb-4">Unlock personalized training plans, track your progress, and reach your peak — backed by elite coaching methodology and real results.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'register' %}" class="btn-primary-green">Get Started</a>
+                    <a href="#plans" class="btn-outline-white">Discover More</a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="position-relative">
+                    <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=700&q=80" alt="Training" class="hero-img">
+                    <div class="hero-card position-absolute" style="bottom:-1rem; left:-1.5rem; max-width:240px;">
+                        <div class="badge-pill">Featured</div>
+                        <h5>Elite Performance Protocol</h5>
+                        <p>12-week advanced strength & conditioning program</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features-section" id="features">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label">Why PeakForm</div>
+            <h2 class="section-title">Engineered for Excellence</h2>
+            <p class="section-sub mx-auto mt-2">Everything you need to train smarter, recover faster, and perform at your absolute best — in one platform.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+                    <h6>Personalized Fitness Plans</h6>
+                    <p>Adaptive programs built around your goals, experience, and schedule — updated as you progress.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-people-fill"></i></div>
+                    <h6>Community Progress</h6>
+                    <p>Train alongside a motivated community. Share milestones, stay accountable, and push each other further.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="bi bi-heart-pulse-fill"></i></div>
+                    <h6>Nutrition Support</h6>
+                    <p>Fuel your performance with expert nutrition guidance tailored to your training load and body composition goals.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="tracking-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=700&q=80" alt="Tracking" class="tracking-img">
+            </div>
+            <div class="col-lg-6">
+                <div class="section-label">Advanced Tracking</div>
+                <h2 class="section-title">User Profiles &<br>Advanced Tracking</h2>
+                <p class="section-sub mt-3 mb-4">Monitor every rep, set, and session. Visualize your growth over time with detailed dashboards and intelligent progress reports that keep you on course.</p>
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    <span class="tracking-badge"><i class="bi bi-graph-up-arrow"></i> Workout Logs</span>
+                    <span class="tracking-badge"><i class="bi bi-person-badge"></i> Personal Profiles</span>
+                    <span class="tracking-badge"><i class="bi bi-trophy-fill"></i> Milestones</span>
+                    <span class="tracking-badge"><i class="bi bi-calendar-check"></i> Weekly Goals</span>
+                </div>
+                <a href="{% url 'register' %}" class="btn-primary-green">Start Tracking</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats-section">
+    <div class="container">
+        <div class="row align-items-center justify-content-center text-center g-0">
+            <div class="col-md-4 stat-item">
+                <div class="stat-number">5,000<span>+</span></div>
+                <div class="stat-label">Clients Transformed</div>
+            </div>
+            <div class="col-md-4 stat-item border-start border-end" style="border-color: rgba(255,255,255,0.15) !important;">
+                <div class="section-label mb-1" style="color:rgba(255,255,255,0.5);">The Performance Protocol</div>
+                <div class="stat-number">15<span>+</span></div>
+                <div class="stat-label">Years of Excellence</div>
+            </div>
+            <div class="col-md-4 stat-item">
+                <div class="stat-number">1,000<span>+</span></div>
+                <div class="stat-label">Elite Athletes Coached</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="plans-section" id="plans">
+    <div class="container">
+        <div class="d-flex align-items-end justify-content-between mb-5 flex-wrap gap-3">
+            <div>
+                <div class="section-label">Programs</div>
+                <h2 class="section-title">Elite Programming</h2>
+            </div>
+            <a href="{% url 'home' %}" class="plan-link" style="font-size:.9rem;">View all plans <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-4">
+            {% for plan in plans %}
+            <div class="col-md-6 col-lg-4">
+                <div class="plan-card">
+                    <div class="plan-card-img-placeholder">
+                        <i class="bi bi-lightning-charge"></i>
+                    </div>
+                    <div class="plan-card-body">
+                        <span class="plan-level level-{{ plan.level }}">{{ plan.get_level_display }}</span>
+                        <h6>{{ plan.title }}</h6>
+                        <p>{{ plan.description|truncatewords:14 }}</p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="plan-price {% if plan.is_free %}plan-price-free{% endif %}">
+                                {% if plan.is_free %}Free{% else %}${{ plan.price }}{% endif %}
+                            </div>
+                            <a href="{% url 'plan_detail' plan.pk %}" class="plan-link">View Plan <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            {% for i in "123" %}
+            <div class="col-md-6 col-lg-4">
+                <div class="plan-card">
+                    <div class="plan-card-img-placeholder"><i class="bi bi-lightning-charge"></i></div>
+                    <div class="plan-card-body">
+                        <span class="plan-level level-{% cycle 'beginner' 'intermediate' 'advanced' %}">{% cycle 'Beginner' 'Intermediate' 'Advanced' %}</span>
+                        <h6>{% cycle 'Foundation Strength' 'Hypertrophy Builder' 'Elite Performance Protocol' %}</h6>
+                        <p>{% cycle 'Build your base with compound movements and progressive overload.' 'Maximize muscle growth with volume-focused training and periodization.' 'Advanced methodology for serious athletes pushing beyond limits.' %}</p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="plan-price {% cycle 'plan-price-free' '' '' %}">{% cycle 'Free' '$49' '$99' %}</div>
+                            <a href="{% url 'register' %}" class="plan-link">View Plan <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="feed-section" id="feed">
+    <div class="container">
+        <div class="d-flex align-items-end justify-content-between mb-5 flex-wrap gap-3">
+            <div>
+                <div class="section-label">Knowledge Hub</div>
+                <h2 class="section-title">The Kinetic Feed</h2>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feed-card">
+                    <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&q=80" alt="Article" class="feed-card-img">
+                    <div class="feed-card-body">
+                        <div class="feed-tag">Strength</div>
+                        <h6>The Science of Progressive Overload: Why It's the Key to Continuous Gains</h6>
+                        <p>Understand how systematically increasing training stress leads to consistent muscle and strength adaptations.</p>
+                        <div class="feed-meta"><i class="bi bi-clock"></i> 5 min read &nbsp;·&nbsp; Mar 2026</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feed-card">
+                    <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500&q=80" alt="Article" class="feed-card-img">
+                    <div class="feed-card-body">
+                        <div class="feed-tag">Nutrition</div>
+                        <h6>Pre-Workout Nutrition: What to Eat and When to Eat It for Peak Performance</h6>
+                        <p>Timing your meals correctly can be the difference between an average workout and a personal record.</p>
+                        <div class="feed-meta"><i class="bi bi-clock"></i> 4 min read &nbsp;·&nbsp; Mar 2026</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feed-card">
+                    <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500&q=80" alt="Article" class="feed-card-img">
+                    <div class="feed-card-body">
+                        <div class="feed-tag">Recovery</div>
+                        <h6>Active Recovery vs Rest Days: How to Maximize Adaptation Between Sessions</h6>
+                        <p>Rest is where gains are made — learn the optimal recovery strategies used by elite athletes worldwide.</p>
+                        <div class="feed-meta"><i class="bi bi-clock"></i> 6 min read &nbsp;·&nbsp; Feb 2026</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <h2>Start your journey today</h2>
+        <p>Join thousands of athletes already training smarter with PeakForm. Your peak is closer than you think.</p>
+        <a href="{% url 'register' %}" class="btn-cta">Take Action</a>
+    </div>
+</section>
+
+<footer class="lp-footer">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <a href="{% url 'landing' %}" class="brand">PeakForm</a>
+            <div>
+                <a href="{% url 'landing' %}" class="footer-link">Home</a>
+                <a href="#features" class="footer-link">About</a>
+                <a href="#plans" class="footer-link">Plans</a>
+                <a href="{% url 'login' %}" class="footer-link">Login</a>
+                <a href="{% url 'register' %}" class="footer-link">Sign Up</a>
+            </div>
+            <div class="d-flex align-items-center">
+                <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                <a href="#" class="social-icon"><i class="bi bi-twitter-x"></i></a>
+                <a href="#" class="social-icon"><i class="bi bi-youtube"></i></a>
+            </div>
+        </div>
+        <hr style="border-color: rgba(255,255,255,0.07); margin: 1.25rem 0 1rem;">
+        <p class="copy text-center mb-0">&copy; 2026 PeakForm. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+</script>
+</body>
+</html>
