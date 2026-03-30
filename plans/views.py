@@ -10,11 +10,13 @@ def landing(request):
     return render(request, 'landing.html', {'plans': plans})
 
 
+@login_required
 def home(request):
     plans = Plan.objects.all().order_by('-created_at')
     return render(request, 'plans/home.html', {'plans': plans})
 
 
+@login_required
 def plan_detail(request, pk):
     plan = get_object_or_404(Plan, pk=pk)
     is_enrolled = False

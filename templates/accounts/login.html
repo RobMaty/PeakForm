@@ -1,23 +1,359 @@
-{% extends 'base.html' %}
-{% load crispy_forms_tags %}
-{% block title %}Login - PeakForm{% endblock %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — PeakForm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+        :root {
+            --green: #1a4731;
+            --green-mid: #2d6a4f;
+            --green-light: #52b788;
+            --orange: #e8692a;
+        }
+        body { background: #f4f6f4; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
 
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-5">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h3 class="card-title mb-4 text-center">Login</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form|crispy }}
-                    <button type="submit" class="btn btn-dark w-100 mt-2">Login</button>
-                </form>
-                <p class="text-center mt-3 mb-0">
-                    No account? <a href="{% url 'register' %}">Sign up</a>
-                </p>
+        .auth-nav {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 0.7rem 0;
+        }
+        .auth-nav .brand {
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: var(--green);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+        .auth-nav .nav-link {
+            color: #555;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.25rem 0.7rem;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .auth-nav .nav-link:hover { color: var(--green); }
+        .auth-nav .btn-register {
+            background: transparent;
+            border: 1.5px solid var(--green);
+            color: var(--green);
+            font-size: 0.82rem;
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 0.35rem 1rem;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .auth-nav .btn-register:hover { background: var(--green); color: #fff; }
+
+        .auth-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+        }
+        .auth-wrap {
+            display: flex;
+            width: 100%;
+            max-width: 900px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+            overflow: hidden;
+            min-height: 520px;
+        }
+
+        .auth-left {
+            flex: 1;
+            background: linear-gradient(160deg, #f0f7f3 0%, #e6f2eb 100%);
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .auth-badge {
+            display: inline-block;
+            background: #fff3ec;
+            color: var(--orange);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-radius: 20px;
+            padding: 0.3rem 0.9rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #fdd8c4;
+        }
+        .auth-left h2 {
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: #111;
+            line-height: 1.15;
+            letter-spacing: -0.5px;
+            margin-bottom: 0;
+        }
+        .auth-left h2 em {
+            font-style: italic;
+            color: var(--green-mid);
+            display: block;
+        }
+        .auth-left p {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.65;
+            margin: 1rem 0 1.5rem;
+            max-width: 280px;
+        }
+        .auth-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.83rem;
+            color: #444;
+            font-weight: 500;
+            margin-bottom: 0.6rem;
+        }
+        .auth-feature .check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--green-light);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            flex-shrink: 0;
+        }
+
+        .auth-right {
+            flex: 1;
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .auth-right h3 {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: #111;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.35rem;
+        }
+        .auth-right .sub {
+            font-size: 0.82rem;
+            color: #888;
+            margin-bottom: 1.75rem;
+        }
+
+        .form-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 0.35rem;
+            letter-spacing: 0.2px;
+        }
+        .form-control {
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0.6rem 0.9rem;
+            font-size: 0.875rem;
+            color: #222;
+            background: #fafafa;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus {
+            border-color: var(--green-light);
+            box-shadow: 0 0 0 3px rgba(82,183,136,0.12);
+            background: #fff;
+            outline: none;
+        }
+        .form-control.is-invalid { border-color: #dc3545; }
+        .invalid-feedback { font-size: 0.76rem; }
+
+        .btn-auth {
+            background: var(--green);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+        .btn-auth:hover { background: var(--green-mid); transform: translateY(-1px); }
+
+        .auth-link {
+            font-size: 0.82rem;
+            color: var(--green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .auth-link:hover { text-decoration: underline; }
+        .auth-foot { font-size: 0.82rem; color: #888; margin-top: 1.25rem; text-align: center; }
+
+        .alert-error {
+            background: #fff2f2;
+            border: 1px solid #fdd;
+            border-radius: 8px;
+            color: #c0392b;
+            font-size: 0.8rem;
+            padding: 0.6rem 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .auth-left { display: none; }
+            .auth-right { padding: 2rem 1.5rem; }
+        }
+
+        .auth-footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+
+        .input-eye-wrap { position: relative; }
+        .input-eye-wrap .form-control { padding-right: 2.5rem; }
+        .eye-btn {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            color: #aaa;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .eye-btn:hover { color: var(--green); }
+    </style>
+</head>
+<body>
+
+<nav class="auth-nav">
+    <div class="container d-flex align-items-center justify-content-between">
+        <a href="{% url 'landing' %}" class="brand">PeakForm</a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'landing' %}" class="nav-link">Home</a>
+            <a href="{% url 'home' %}" class="nav-link">Plans</a>
+            <a href="{% url 'landing' %}#feed" class="nav-link">Community</a>
+        </div>
+        <a href="{% url 'register' %}" class="btn-register">Register</a>
+    </div>
+</nav>
+
+<div class="auth-body">
+    <div class="auth-wrap">
+        <div class="auth-left">
+            <span class="auth-badge">The Kinetic Protocol</span>
+            <h2>Elevate Your<em>Performance</em></h2>
+            <p>Join the elite community of athletes redefining their limits through data-driven programming and editorial excellence.</p>
+            <div class="auth-feature">
+                <span class="check"><i class="bi bi-check"></i></span>
+                Expert-crafted workout protocols
             </div>
+            <div class="auth-feature">
+                <span class="check"><i class="bi bi-check"></i></span>
+                Advanced biometric tracking
+            </div>
+            <div class="auth-feature">
+                <span class="check"><i class="bi bi-check"></i></span>
+                Exclusive community insights
+            </div>
+        </div>
+
+        <div class="auth-right">
+            <h3>Welcome Back</h3>
+            <p class="sub">Enter your credentials to access your dashboard</p>
+
+            {% if form.non_field_errors %}
+            <div class="alert-error">
+                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+                    <input type="text"
+                           name="{{ form.username.html_name }}"
+                           id="{{ form.username.id_for_label }}"
+                           class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                           placeholder="Your username"
+                           value="{{ form.username.value|default:'' }}"
+                           autocomplete="username">
+                    {% if form.username.errors %}
+                    <div class="invalid-feedback d-block">{{ form.username.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-1">
+                    <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+                    <div class="input-eye-wrap">
+                        <input type="password"
+                               name="{{ form.password.html_name }}"
+                               id="{{ form.password.id_for_label }}"
+                               class="form-control {% if form.password.errors %}is-invalid{% endif %}"
+                               placeholder="••••••••"
+                               autocomplete="current-password">
+                        <button type="button" class="eye-btn" data-target="{{ form.password.id_for_label }}">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                    <div class="invalid-feedback d-block">{{ form.password.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="text-end mb-3">
+                    <a href="#" class="auth-link" style="font-size:0.78rem; font-weight:500; color:#888;">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn-auth">Login <i class="bi bi-arrow-right"></i></button>
+            </form>
+
+            <p class="auth-foot">Don't have an account? <a href="{% url 'register' %}" class="auth-link">Sign up</a></p>
         </div>
     </div>
 </div>
-{% endblock %}
+
+<div class="auth-footer">&copy; 2026 PeakForm. All rights reserved.</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('.eye-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = document.getElementById(btn.dataset.target);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        });
+    });
+</script>
+</body>
+</html>
