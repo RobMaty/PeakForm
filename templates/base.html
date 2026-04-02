@@ -12,50 +12,66 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="{% url 'home' %}">
-            <i class="bi bi-lightning-charge-fill text-warning"></i> PeakForm
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+            <svg width="26" height="22" viewBox="0 0 26 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 21L10 3L15 12L18.5 6L25 21H1Z" fill="#1a4d35" stroke="#1a4d35" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="M15 12L18.5 6L25 21H12.5L15 12Z" fill="#52b788" opacity="0.55"/>
+            </svg>
+            PeakForm
         </a>
+        <div class="d-flex align-items-center gap-2 ms-auto me-2 d-lg-none">
+            {% if user.is_authenticated %}
+            <div class="user-pill">
+                <div class="user-avatar">{{ user.username|first|upper }}</div>
+                <span>{{ user.username }}</span>
+            </div>
+            <form method="post" action="{% url 'logout' %}" class="d-inline m-0 p-0">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn" title="Logout">
+                    <i class="bi bi-box-arrow-right fs-5"></i>
+                </button>
+            </form>
+            {% else %}
+            <a class="nav-link" href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}" class="btn-green" style="padding:7px 18px;font-size:0.88rem;">Sign Up</a>
+            {% endif %}
+        </div>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav gap-1">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'home' %}">Plans</a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}fw-semibold{% endif %}" href="{% url 'home' %}">Plans</a>
                 </li>
                 {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'my_plans' %}">My Plans</a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'my_plans' %}fw-semibold{% endif %}" href="{% url 'my_plans' %}">My Plans</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'progress_dashboard' %}">Progress</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle"></i> {{ user.username }}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <form method="post" action="{% url 'logout' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="dropdown-item">Logout</button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login' %}">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link btn btn-warning btn-sm text-dark px-3 ms-2" href="{% url 'register' %}">Sign Up</a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'progress_dashboard' %}fw-semibold{% endif %}" href="{% url 'progress_dashboard' %}">Progress</a>
                 </li>
                 {% endif %}
             </ul>
+        </div>
+        <div class="d-none d-lg-flex align-items-center gap-2">
+            {% if user.is_authenticated %}
+            <div class="user-pill">
+                <div class="user-avatar">{{ user.username|first|upper }}</div>
+                <span>{{ user.username }}</span>
+            </div>
+            <form method="post" action="{% url 'logout' %}" class="d-inline m-0 p-0">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn" title="Logout">
+                    <i class="bi bi-box-arrow-right fs-5"></i>
+                </button>
+            </form>
+            {% else %}
+            <a class="nav-link" href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}" class="btn-green" style="padding:7px 18px;font-size:0.88rem;">Sign Up</a>
+            {% endif %}
         </div>
     </div>
 </nav>
@@ -71,7 +87,7 @@
     {% block content %}{% endblock %}
 </div>
 
-<footer class="bg-dark text-light text-center py-3 mt-5">
+<footer class="text-center py-3 mt-5">
     <small>&copy; 2026 PeakForm. All rights reserved.</small>
 </footer>
 

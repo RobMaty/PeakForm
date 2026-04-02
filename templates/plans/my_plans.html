@@ -2,24 +2,50 @@
 {% block title %}My Plans - PeakForm{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">My Plans</h2>
+<h1 class="fw-bold mb-1" style="font-size:2rem;">My Plans</h1>
+
+{% if user_plans %}
+<p class="text-muted mb-4" style="font-size:0.95rem;">Your active training protocols.</p>
 <div class="row g-4">
     {% for up in user_plans %}
     <div class="col-md-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <span class="badge bg-secondary mb-2">{{ up.plan.get_level_display }}</span>
-                <h5 class="card-title">{{ up.plan.title }}</h5>
-                <p class="text-muted">{{ up.plan.description|truncatewords:15 }}</p>
-                <small class="text-muted">Enrolled: {{ up.enrolled_at|date:"d M Y" }}</small><br>
-                <a href="{% url 'plan_detail' up.plan.pk %}" class="btn btn-dark btn-sm mt-2">View</a>
+        <div class="card h-100">
+            {% if up.plan.image_url %}
+            <img src="{{ up.plan.image_url }}" alt="{{ up.plan.title }}" class="plan-card-img">
+            {% else %}
+            <div class="plan-card-placeholder {% if forloop.counter0|divisibleby:3 %}{% elif forloop.counter0|divisibleby:2 %}alt1{% else %}alt2{% endif %}"></div>
+            {% endif %}
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                    <h5 class="fw-bold mb-0" style="font-size:1.05rem;">{{ up.plan.title }}</h5>
+                    {% if up.plan.is_free %}
+                    <span class="price-badge-free ms-2">Free</span>
+                    {% else %}
+                    <span class="price-badge ms-2">${{ up.plan.price }}</span>
+                    {% endif %}
+                </div>
+                <p class="text-muted mb-3" style="font-size:0.88rem;line-height:1.5;">{{ up.plan.description|truncatewords:18 }}</p>
+                <div class="d-flex align-items-center justify-content-between">
+                    <small class="text-muted">Since {{ up.enrolled_at|date:"d M Y" }}</small>
+                    <a href="{% url 'plan_detail' up.plan.pk %}" class="view-details-link">View Details <i class="bi bi-arrow-right"></i></a>
+                </div>
             </div>
         </div>
     </div>
-    {% empty %}
-    <div class="col-12">
-        <p class="text-muted">You haven't enrolled in any plans yet. <a href="{% url 'home' %}">Browse plans</a>.</p>
-    </div>
     {% endfor %}
 </div>
+
+{% else %}
+<p class="text-muted mb-4" style="font-size:0.95rem;">You haven't enrolled in any plans yet.</p>
+<div class="empty-state-wrap mt-2">
+    <div class="empty-icon-wrap">
+        <i class="bi bi-calendar3"></i>
+    </div>
+    <h4 class="fw-bold mb-2">Ready to start?</h4>
+    <p class="text-muted mb-4" style="max-width:380px;margin-left:auto;margin-right:auto;font-size:0.95rem;">
+        Your training schedule is waiting. Browse our elite programming to find the perfect protocol for your goals.
+    </p>
+    <a href="{% url 'home' %}" class="btn-green">Browse Plans <i class="bi bi-arrow-right"></i></a>
+</div>
+{% endif %}
 {% endblock %}

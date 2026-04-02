@@ -15,6 +15,7 @@ class Plan(models.Model):
     duration_weeks = models.PositiveIntegerField(default=4)
     price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     is_free = models.BooleanField(default=False)
+    image_url = models.URLField(blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_plans')
     created_at = models.DateTimeField(auto_now_add=True)
 

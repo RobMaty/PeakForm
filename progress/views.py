@@ -8,9 +8,10 @@ import json
 
 @login_required
 def dashboard(request):
-    logs = WorkoutLog.objects.filter(user=request.user)[:10]
+    logs = WorkoutLog.objects.filter(user=request.user).select_related('plan')[:10]
     weights = BodyWeight.objects.filter(user=request.user)[:10]
-    return render(request, 'progress/dashboard.html', {'logs': logs, 'weights': weights})
+    completed_count = WorkoutLog.objects.filter(user=request.user, completed=True).count()
+    return render(request, 'progress/dashboard.html', {'logs': logs, 'weights': weights, 'completed_count': completed_count})
 
 
 @login_required

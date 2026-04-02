@@ -2,34 +2,79 @@
 {% block title %}Training Plans - PeakForm{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Training Plans</h2>
+<div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-3 mb-2">
+    <div>
+        <h1 class="fw-bold mb-1" style="font-size:2rem;">Training Plans</h1>
+        <p class="text-muted mb-0" style="font-size:0.95rem;">Select from hundreds of vetted protocols designed by certified strength specialists.</p>
+    </div>
+    <div class="flex-shrink-0">
+        <input type="text" class="search-input w-100" id="plan-search" placeholder="Search plans...">
+    </div>
 </div>
 
-<div class="row g-4" id="plans-list">
+<div class="row g-4 mt-2" id="plans-list">
     {% for plan in plans %}
-    <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <span class="badge bg-secondary mb-2">{{ plan.get_level_display }}</span>
-                <h5 class="card-title">{{ plan.title }}</h5>
-                <p class="card-text text-muted">{{ plan.description|truncatewords:20 }}</p>
-                <p class="mb-1"><i class="bi bi-calendar3"></i> {{ plan.duration_weeks }} weeks</p>
-                <p class="mb-3">
+    <div class="col-md-4 plan-item" data-title="{{ plan.title|lower }}">
+        <div class="card h-100">
+            {% if plan.image_url %}
+            <img src="{{ plan.image_url }}" alt="{{ plan.title }}" class="plan-card-img">
+            {% else %}
+            <div class="plan-card-placeholder {% if forloop.counter0|divisibleby:3 %}{% elif forloop.counter0|divisibleby:2 %}alt1{% else %}alt2{% endif %}"></div>
+            {% endif %}
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                    <h5 class="fw-bold mb-0" style="font-size:1.05rem;">{{ plan.title }}</h5>
                     {% if plan.is_free %}
-                    <span class="badge bg-success">Free</span>
+                    <span class="price-badge-free ms-2">Free</span>
                     {% else %}
-                    <strong>${{ plan.price }}</strong>
+                    <span class="price-badge ms-2">${{ plan.price }}</span>
                     {% endif %}
-                </p>
-                <a href="{% url 'plan_detail' plan.pk %}" class="btn btn-dark btn-sm">View Plan</a>
+                </div>
+                <p class="text-muted mb-3" style="font-size:0.88rem;line-height:1.5;">{{ plan.description|truncatewords:18 }}</p>
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="level-badge level-{{ plan.level }}">{{ plan.get_level_display }}</span>
+                    <a href="{% url 'plan_detail' plan.pk %}" class="view-details-link">View Details <i class="bi bi-arrow-right"></i></a>
+                </div>
             </div>
         </div>
     </div>
     {% empty %}
     <div class="col-12">
-        <p class="text-muted">No plans available yet.</p>
+        <div class="empty-state-wrap">
+            <div class="empty-icon-wrap">
+                <i class="bi bi-collection"></i>
+            </div>
+            <h5 class="fw-bold mb-2">No plans available yet.</h5>
+            <p class="text-muted mb-0">Check back soon for new training protocols.</p>
+        </div>
     </div>
     {% endfor %}
 </div>
+
+<div id="search-empty" class="d-none mt-4">
+    <div class="empty-state-wrap">
+        <div class="empty-icon-wrap">
+            <i class="bi bi-search"></i>
+        </div>
+        <h5 class="fw-bold mb-2">No plans found</h5>
+        <p class="text-muted mb-0">Try a different keyword or clear the search.</p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$('#plan-search').on('input', function() {
+    var q = $(this).val().toLowerCase().trim();
+    var visible = 0;
+    $('.plan-item').each(function() {
+        var title = $(this).data('title') || '';
+        var show = q === '' || title.indexOf(q) !== -1;
+        $(this).toggle(show);
+        if (show) visible++;
+    });
+    $('#search-empty').toggleClass('d-none', visible > 0 || q === '');
+});
+</script>
 {% endblock %}
