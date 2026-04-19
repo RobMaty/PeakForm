@@ -394,6 +394,10 @@ footer {
     transition: border-color 0.15s, box-shadow 0.15s !important;
 }
 
+textarea.form-control {
+    border-radius: 12px !important;
+}
+
 .form-control:focus {
     border-color: var(--green-mid) !important;
     box-shadow: 0 0 0 3px rgba(45,122,79,0.12) !important;
