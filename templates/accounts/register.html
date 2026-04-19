@@ -228,6 +228,10 @@
             color: #aaa;
         }
 
+        @media (max-width: 768px) {
+            .auth-nav .nav-links { display: none; }
+        }
+
         .input-eye-wrap { position: relative; }
         .input-eye-wrap .form-control { padding-right: 2.5rem; }
         .eye-btn {
@@ -251,7 +255,7 @@
 <nav class="auth-nav">
     <div class="container d-flex align-items-center justify-content-between">
         <a href="{% url 'landing' %}" class="brand">PeakForm</a>
-        <div class="d-flex align-items-center gap-3">
+        <div class="nav-links d-flex align-items-center gap-3">
             <a href="{% url 'landing' %}" class="nav-link">Home</a>
             <a href="{% url 'home' %}" class="nav-link">Plans</a>
             <a href="{% url 'landing' %}#feed" class="nav-link">Community</a>
