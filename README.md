@@ -8,6 +8,10 @@
 
 ### By RobMaty
 
+[View Live Site](https://peak-form-iota.vercel.app/)
+
+---
+
 ## Table of Content
 
 * [The Why](#the-why)
@@ -26,19 +30,19 @@
   - [Existing Features](#existing-features)
     * [Landing Page](#landing-page)
     * [Authentication](#authentication)
-    * [User Profile](#user-profile)
     * [Training Plans](#training-plans)
     * [Plan Detail](#plan-detail)
-    * [My Plans](#my-plans)
+    * [Purchase Flow](#purchase-flow)
     * [Progress Dashboard](#progress-dashboard)
-    * [Log Workout](#log-workout)
 * [Technologies](#technologies)
   + [Languages used](#languages-used)
   + [Frameworks, Libraries and Programs used](#frameworks-libraries-and-programs-used)
 * [Database Schema](#database-schema)
   + [Schema](#schema)
 * [Testing](#testing)
-  + [Testing results](#testing-results)
+  + [Validator Testing](#validator-testing)
+  + [Lighthouse Performance](#lighthouse-performance)
+  + [Manual Testing](#manual-testing)
 * [Deployment](#deployment)
   + [Inception](#inception)
   + [Local Clone](#local-clone)
@@ -134,54 +138,41 @@ The basic structure of PeakForm was sketched using [Balsamiq](https://balsamiq.c
 
   - #### Landing Page
 
-    - A hero section introduces PeakForm with a clear call-to-action to register or browse plans.
-    - The landing page communicates the core value proposition immediately.
+    A bold hero section introduces PeakForm with a clear call-to-action to get started or discover plans. The headline immediately communicates the core value proposition. Below the hero, The Kinetic Feed section displays editorial fitness content to engage and educate users.
+
+    ![Landing Page Hero](templates/photos/landing-page-hero.png)
+
+    ![Landing Page Blog Section](templates/photos/landing-page-blogs.png)
 
   - #### Authentication
 
-    - Users can register with a username, email, and password.
-    - Login and logout are handled securely via Django's built-in authentication.
-    - Registered users are redirected to the plans page on login.
+    Users can register with a username, email, and password. Login and logout are handled securely via Django's built-in authentication. The login page is designed with a split layout featuring key selling points alongside the form.
 
-  - #### User Profile
-
-    - After registration, a profile is automatically created via Django signals.
-    - Users can set their fitness goal (Lose Weight, Build Muscle, Maintain, Endurance).
-    - Users can enter their current weight and height.
-    - A bio field allows users to describe themselves.
-    - Avatar upload is supported via Pillow image processing.
+    ![Login Page](templates/photos/login.png)
 
   - #### Training Plans
 
-    - All available plans are displayed on the home page as cards.
-    - Each card shows the plan title, level badge (Beginner / Intermediate / Advanced), duration in weeks, and price.
-    - Free plans are clearly labelled. Paid plans show their price.
-    - Users can filter plans by difficulty level.
+    All available plans are displayed as cards showing the plan title, level badge (Beginner / Intermediate / Advanced), duration in weeks, and price. Free plans are clearly labelled. Paid plans show their price. Users can search plans by name.
+
+    ![Training Plans](templates/photos/all-plans.png)
 
   - #### Plan Detail
 
-    - Clicking a plan opens a detail page with the full description and exercise list.
-    - Exercises are grouped by day of week and show sets, reps, rest time, and notes.
-    - An Enroll button allows users to join the plan (one enrollment per plan per user).
+    Clicking a plan opens a detail page with the full description, pricing, and exercise schedule. Exercises are grouped by day of the week and show sets, reps, rest time, and notes. A purchase button allows users to enroll in the plan.
 
-  - #### My Plans
+    ![Plan Detail View](templates/photos/single-plan-view.png)
 
-    - Users can view all plans they are currently enrolled in.
-    - Each enrolled plan links back to its detail page.
-    - Active status is tracked per enrollment.
+  - #### Purchase Flow
+
+    Paid plans trigger a secure purchase modal where users enter their card details to complete the transaction before gaining access to the plan.
+
+    ![Purchase Modal](templates/photos/purchase-a-plan-modall.png)
 
   - #### Progress Dashboard
 
-    - The dashboard shows a summary of the user's workout activity.
-    - Recent workout logs are listed with date, plan name, and completion status.
-    - Body weight entries are displayed chronologically so users can track their trend.
+    The dashboard shows a body weight trend chart with 7-day, 1-month, and all-time views. Users can log their current weight directly from the dashboard. A workouts panel on the right tracks all logged sessions.
 
-  - #### Log Workout
-
-    - Users can log a workout session linked to a specific plan and date.
-    - Each session includes individual exercise logs with sets done, reps done, and weight (kg).
-    - A notes field is available for each session.
-    - Completed sessions are marked and reflected on the dashboard.
+    ![Progress Dashboard](templates/photos/progress-log.png)
 
 ---
 
@@ -240,10 +231,50 @@ PeakForm uses Django's ORM with SQLite in development. The schema is composed of
 
 ## Testing
 
-### Testing results
+### Validator Testing
 
-- [W3C Markup Validation Service](https://validator.w3.org/) — used to validate HTML templates.
-- [W3C CSS Validation Service](https://jigsaw.w3.org/css-validator/) — used to validate the main stylesheet.
+Site-wide HTML and standards validation was carried out using [PowerMapper SortSite](https://www.powermapper.com/products/sortsite/). The tool scanned all 17 pages and files across the application and reported 0 broken links or errors. Standards compliance scored well above average (6% issues vs benchmark).
+
+![Validator Summary](templates/photos/validator1.png)
+
+![Validator Diagnostics](templates/photos/validator2.png)
+
+CSS was additionally validated using the [W3C CSS Validation Service](https://jigsaw.w3.org/css-validator/).
+
+### Lighthouse Performance
+
+Performance was measured using [Google PageSpeed Insights](https://pagespeed.web.dev/) on the landing page.
+
+**Mobile Results**
+
+| Category       | Score |
+|----------------|-------|
+| Performance    | 73    |
+| Accessibility  | 74    |
+| Best Practices | 100   |
+| SEO            | 91    |
+
+![Lighthouse Mobile Scores](templates/photos/lighthouse1.png)
+
+![Lighthouse Mobile Metrics](templates/photos/lighthouse2.png)
+
+**Desktop Results**
+
+| Category       | Score |
+|----------------|-------|
+| Performance    | 97    |
+| Accessibility  | 74    |
+| Best Practices | 100   |
+| SEO            | 91    |
+
+![Lighthouse Desktop Scores](templates/photos/lighthouse3.png)
+
+![Lighthouse Desktop Metrics](templates/photos/lighthouse4.png)
+
+Desktop performance scores 97/100. Mobile performance is impacted by image load times on slow 4G (LCP 5.6s) — a known trade-off with externally hosted plan images.
+
+### Manual Testing
+
 - Manual testing was carried out on all user flows: registration, login, profile update, plan enrollment, workout logging, and dashboard display.
 - User testing was performed by having real users navigate the app and provide direct feedback.
 
@@ -255,6 +286,7 @@ PeakForm uses Django's ORM with SQLite in development. The schema is composed of
 
 - The project was created using a local Django setup with a virtual environment.
 - Git was initialised locally and the repository was pushed to GitHub.
+- The application is deployed live on [Vercel](https://vercel.com/) at [https://peak-form-iota.vercel.app/](https://peak-form-iota.vercel.app/).
 
 Git commands used throughout development:
 
