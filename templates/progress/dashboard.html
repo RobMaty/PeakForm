@@ -74,7 +74,8 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script>
-$('#weight-date').val(new Date().toISOString().split('T')[0]);
+var today = new Date().toISOString().split('T')[0];
+$('#weight-date').val(today).attr('max', today);
 
 $('#log-weight-btn').on('click', function() {
     var weight = parseFloat($('#weight-input').val());
@@ -83,10 +84,15 @@ $('#log-weight-btn').on('click', function() {
         $('#weight-message').html('<div class="alert alert-warning py-1 mb-2">Please enter weight and date.</div>');
         return;
     }
+    if (date > today) {
+        $('#weight-message').html('<div class="alert alert-warning py-1 mb-2">Date cannot be in the future.</div>');
+        return;
+    }
     $.ajax({
         url: '{% url "log_weight" %}',
         type: 'POST',
         contentType: 'application/json',
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
         data: JSON.stringify({weight_kg: weight, date: date}),
         success: function(res) {
             if (res.success) {
@@ -95,6 +101,9 @@ $('#log-weight-btn').on('click', function() {
                 loadChart(activePeriod);
                 setTimeout(function() { $('#weight-message').html(''); }, 3000);
             }
+        },
+        error: function() {
+            $('#weight-message').html('<div class="alert alert-danger py-1 mb-2">Could not log weight. Please check the date.</div>');
         }
     });
 });

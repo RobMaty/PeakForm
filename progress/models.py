@@ -1,12 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 from plans.models import Plan, Exercise
+
+
+def validate_not_future(value):
+    if value > timezone.now().date():
+        raise ValidationError('Date cannot be in the future.')
 
 
 class WorkoutLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='workout_logs')
     plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, null=True, blank=True)
-    date = models.DateField()
+    date = models.DateField(validators=[validate_not_future])
     notes = models.TextField(blank=True)
     completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -33,7 +40,7 @@ class ExerciseLog(models.Model):
 class BodyWeight(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='body_weights')
     weight_kg = models.DecimalField(max_digits=5, decimal_places=2)
-    date = models.DateField()
+    date = models.DateField(validators=[validate_not_future])
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

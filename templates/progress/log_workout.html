@@ -46,15 +46,25 @@
 
 {% block extra_js %}
 <script>
-$('#log-date').val(new Date().toISOString().split('T')[0]);
+var today = new Date().toISOString().split('T')[0];
+$('#log-date').val(today).attr('max', today);
 
 $('#save-log-btn').on('click', function() {
+    var date = $('#log-date').val();
+    if (!date) {
+        $('#log-message').html('<div class="alert alert-warning">Please select a date.</div>');
+        return;
+    }
+    if (date > today) {
+        $('#log-message').html('<div class="alert alert-warning">Date cannot be in the future.</div>');
+        return;
+    }
     $.ajax({
         url: '{% url "log_workout" %}',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({
-            date: $('#log-date').val(),
+            date: date,
             notes: $('#log-notes').val(),
             completed: $('#log-completed').is(':checked'),
         }),
@@ -64,6 +74,9 @@ $('#save-log-btn').on('click', function() {
                 $('#log-notes').val('');
                 $('#log-completed').prop('checked', false);
             }
+        },
+        error: function() {
+            $('#log-message').html('<div class="alert alert-danger">Could not save workout. Please check the date.</div>');
         }
     });
 });

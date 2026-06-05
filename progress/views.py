@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.utils import timezone
 from .models import WorkoutLog, ExerciseLog, BodyWeight
@@ -18,12 +19,17 @@ def dashboard(request):
 def log_workout(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        log = WorkoutLog.objects.create(
+        log = WorkoutLog(
             user=request.user,
             date=data.get('date', timezone.now().date()),
             notes=data.get('notes', ''),
             completed=data.get('completed', False),
         )
+        try:
+            log.full_clean(exclude=['plan'])
+        except ValidationError as e:
+            return JsonResponse({'success': False, 'errors': e.message_dict}, status=400)
+        log.save()
         return JsonResponse({'success': True, 'log_id': log.id})
     logs = WorkoutLog.objects.filter(user=request.user)[:20]
     return render(request, 'progress/log_workout.html', {'logs': logs})
@@ -33,11 +39,16 @@ def log_workout(request):
 def log_weight(request):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         data = json.loads(request.body)
-        entry = BodyWeight.objects.create(
+        entry = BodyWeight(
             user=request.user,
-            weight_kg=data['weight_kg'],
+            weight_kg=str(data['weight_kg']),
             date=data.get('date', str(timezone.now().date())),
         )
+        try:
+            entry.full_clean()
+        except ValidationError as e:
+            return JsonResponse({'success': False, 'errors': e.message_dict}, status=400)
+        entry.save()
         return JsonResponse({'success': True, 'id': entry.id, 'weight': str(entry.weight_kg), 'date': str(entry.date)})
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
