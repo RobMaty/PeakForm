@@ -38,11 +38,14 @@
   + [Languages used](#languages-used)
   + [Frameworks, Libraries and Programs used](#frameworks-libraries-and-programs-used)
 * [Database Schema](#database-schema)
-  + [Schema](#schema)
+  + [Entity Relationship Diagram (ERD)](#entity-relationship-diagram-erd)
+  + [Models Explained](#models-explained)
+  + [Relationships Overview](#relationships-overview)
 * [Testing](#testing)
   + [Validator Testing](#validator-testing)
   + [Lighthouse Performance](#lighthouse-performance)
   + [Manual Testing](#manual-testing)
+  + [Automated Testing](#automated-testing)
 * [Deployment](#deployment)
   + [Inception](#inception)
   + [Local Clone](#local-clone)
@@ -201,31 +204,121 @@ The basic structure of PeakForm was sketched using [Balsamiq](https://balsamiq.c
 
 ## Database Schema
 
-### Schema
+PeakForm uses Django's ORM with SQLite in development and PostgreSQL in production. The data model is composed of six application models spread across three Django apps (`accounts`, `plans`, `progress`), all anchored to Django's built-in `User` model. The schema was designed around a clear separation of concerns: identity and profile data, the training-plan catalogue, and the per-user progress tracking.
 
-PeakForm uses Django's ORM with SQLite in development. The schema is composed of five core models across three Django apps.
+### Entity Relationship Diagram (ERD)
 
-**accounts app**
+The diagram below is rendered automatically by GitHub from a Mermaid definition. It shows every model, its key fields, and the cardinality of each relationship.
 
-| Model   | Fields |
-|---------|--------|
-| Profile | user (FK User), bio, avatar, goal, weight, height, created_at |
+```mermaid
+erDiagram
+    USER ||--|| PROFILE : "has one"
+    USER ||--o{ PLAN : "creates"
+    USER ||--o{ USERPLAN : "enrols"
+    USER ||--o{ WORKOUTLOG : "logs"
+    USER ||--o{ BODYWEIGHT : "records"
+    PLAN ||--o{ EXERCISE : "contains"
+    PLAN ||--o{ USERPLAN : "enrolled by"
+    PLAN ||--o{ WORKOUTLOG : "followed in"
+    WORKOUTLOG ||--o{ EXERCISELOG : "contains"
+    EXERCISE ||--o{ EXERCISELOG : "performed as"
 
-**plans app**
+    USER {
+        int id PK
+        string username
+        string email
+        string password
+    }
+    PROFILE {
+        int id PK
+        int user_id FK
+        text bio
+        image avatar
+        string goal
+        decimal weight
+        decimal height
+        datetime created_at
+    }
+    PLAN {
+        int id PK
+        string title
+        text description
+        string level
+        int duration_weeks
+        decimal price
+        bool is_free
+        url image_url
+        int created_by_id FK
+        datetime created_at
+    }
+    EXERCISE {
+        int id PK
+        int plan_id FK
+        string name
+        int sets
+        int reps
+        int rest_seconds
+        int day_of_week
+        text notes
+    }
+    USERPLAN {
+        int id PK
+        int user_id FK
+        int plan_id FK
+        datetime enrolled_at
+        bool is_active
+    }
+    WORKOUTLOG {
+        int id PK
+        int user_id FK
+        int plan_id FK
+        date date
+        text notes
+        bool completed
+        datetime created_at
+    }
+    EXERCISELOG {
+        int id PK
+        int workout_log_id FK
+        int exercise_id FK
+        string exercise_name
+        int sets_done
+        int reps_done
+        decimal weight_kg
+    }
+    BODYWEIGHT {
+        int id PK
+        int user_id FK
+        decimal weight_kg
+        date date
+        datetime created_at
+    }
+```
 
-| Model    | Fields |
-|----------|--------|
-| Plan     | title, description, level, duration_weeks, price, is_free, image_url, created_by (FK User), created_at |
-| Exercise | plan (FK Plan), name, sets, reps, rest_seconds, day_of_week, notes |
-| UserPlan | user (FK User), plan (FK Plan), enrolled_at, is_active |
+### Models Explained
 
-**progress app**
+Each model below lists its purpose, its most important fields, and how it connects to the rest of the schema.
 
-| Model       | Fields |
-|-------------|--------|
-| WorkoutLog  | user (FK User), plan (FK Plan), date, notes, completed, created_at |
-| ExerciseLog | workout_log (FK WorkoutLog), exercise (FK Exercise), exercise_name, sets_done, reps_done, weight_kg |
-| BodyWeight  | user (FK User), weight_kg, date, created_at |
+| Model | App | Purpose | Key Relationships |
+|-------|-----|---------|-------------------|
+| **Profile** | accounts | Extends the built-in `User` with fitness-specific data: a short bio, an avatar image, the user's training goal, and current body metrics (weight/height). | `OneToOne` with `User` — every user has exactly one profile, created automatically on registration via a `post_save` signal. |
+| **Plan** | plans | Represents a training plan in the catalogue, including its title, description, difficulty level, duration in weeks, price, and whether it is free. | `ForeignKey` to `User` (`created_by`) — the coach/owner who authored the plan. One plan has many exercises and can be enrolled in by many users. |
+| **Exercise** | plans | A single exercise that belongs to a plan, with prescribed sets, reps, rest time, and the day of the week it is scheduled for. | `ForeignKey` to `Plan` — many exercises belong to one plan (`CASCADE` delete). |
+| **UserPlan** | plans | The enrolment link between a user and a plan. Tracks when the user enrolled and whether the enrolment is still active. | `ForeignKey` to both `User` and `Plan`, with a `unique_together` constraint so a user cannot enrol in the same plan twice. This is the join model that resolves the many-to-many relationship between users and plans. |
+| **WorkoutLog** | progress | A single logged workout session for a user on a given date, with notes and a completion flag. The `date` field is validated to reject future dates. | `ForeignKey` to `User` (the owner) and an optional `ForeignKey` to `Plan` (the plan being followed, `SET_NULL` on delete). One workout log has many exercise logs. |
+| **ExerciseLog** | progress | The performance record of one exercise within a workout session — the actual sets, reps, and weight the user completed. | `ForeignKey` to `WorkoutLog` (`CASCADE`) and an optional `ForeignKey` to `Exercise` (`SET_NULL`). Stores `exercise_name` directly so history is preserved even if the source exercise is removed. |
+| **BodyWeight** | progress | A single body-weight measurement for a user on a given date, used to render the progress trend chart. The `date` field is validated to reject future dates. | `ForeignKey` to `User` — a user has many measurements over time. |
+
+### Relationships Overview
+
+- **User → Profile** (One-to-One): each user has exactly one profile holding their personal fitness information.
+- **User → Plan** (One-to-Many): a user (acting as a coach) can author many plans via `created_by`.
+- **User ↔ Plan** (Many-to-Many through UserPlan): a user can enrol in many plans and a plan can be taken by many users; the `UserPlan` model carries the enrolment metadata.
+- **Plan → Exercise** (One-to-Many): a plan is made up of many scheduled exercises.
+- **User → WorkoutLog** (One-to-Many): a user logs many workout sessions over time.
+- **WorkoutLog → ExerciseLog** (One-to-Many): each logged session contains the individual exercises performed in it.
+- **Exercise → ExerciseLog** (One-to-Many): a catalogue exercise can be referenced by many performance records.
+- **User → BodyWeight** (One-to-Many): a user records many body-weight measurements over time.
 
 ---
 
@@ -275,8 +368,55 @@ Desktop performance scores 97/100. Mobile performance is impacted by image load 
 
 ### Manual Testing
 
-- Manual testing was carried out on all user flows: registration, login, profile update, plan enrollment, workout logging, and dashboard display.
-- User testing was performed by having real users navigate the app and provide direct feedback.
+Manual testing was carried out across every user flow. Each feature was tested with both valid and, where relevant, invalid input. The table below records the test performed, the expected result, the actual result, and the pass/fail outcome.
+
+| Feature | Test Performed | Expected Result | Actual Result | Pass/Fail |
+|---------|----------------|-----------------|---------------|-----------|
+| User Registration | Register with valid username, email and matching passwords | Account is created, user is logged in and redirected | Account created and user redirected to home | Pass |
+| User Registration | Register with mismatched passwords | Validation error shown, no account created | Validation error displayed, account not created | Pass |
+| User Login | Login with valid credentials | User is authenticated and redirected to the app | User logged in successfully | Pass |
+| User Login | Login with an incorrect password | Login fails and an error message is shown | Error message displayed, access denied | Pass |
+| Profile Update | Change goal, bio and body metrics | Updated details are saved and shown | Details saved correctly | Pass |
+| Plan Browsing | Open the plans page as a logged-in user | All available plans are listed | Plans displayed as cards | Pass |
+| Plan Detail | Open a plan and view its exercise schedule | Plan description and exercises shown by day | Detail and schedule rendered correctly | Pass |
+| Plan Enrolment | Enrol in a training plan | Plan is assigned to the user | Plan assigned successfully | Pass |
+| Plan Enrolment | Click enrol again on the same plan | User is un-enrolled (toggle off) | Enrolment removed successfully | Pass |
+| Workout Logging | Add a workout with a valid date | Workout is stored in the database | Workout recorded correctly | Pass |
+| Workout Logging | Try to log a workout with a future date | Submission is rejected with a validation message | Future date rejected, no record created | Pass |
+| Weight Logging | Add a body-weight entry with a valid date | Entry is saved and the chart updates | Weight saved and trend chart refreshed | Pass |
+| Weight Logging | Try to log a weight with a future date | Submission is rejected with a validation message | Future date rejected, no record created | Pass |
+| Form Validation | Submit a form with missing required fields | Validation message displayed | Validation message displayed | Pass |
+| Access Control | Open the dashboard while logged out | User is redirected to the login page | Redirected to login as expected | Pass |
+
+In addition, user testing was performed by having real users navigate the app and provide direct feedback on usability.
+
+### Automated Testing
+
+Automated tests were written using Django's built-in test framework (`django.test.TestCase`), which runs against an isolated, throwaway test database. The suite covers the models (including the new future-date validation), the forms, the authentication flows, and the JSON/AJAX endpoints across all three apps.
+
+Run the full suite with:
+
+```
+python manage.py test
+```
+
+Coverage by app:
+
+| App | Tests Cover |
+|-----|-------------|
+| accounts | Profile auto-creation signal, `Profile.__str__`, registration form validation (valid and mismatched passwords), the register view, login (valid and invalid credentials), and authenticated profile updates. |
+| plans | `Plan` and `Exercise` string representations, the plan→exercise relationship, public vs. login-protected views, plan detail rendering, and plan enrolment (enrol, toggle off, and rejection of non-AJAX requests). |
+| progress | The `validate_not_future` validator, model-level rejection of future dates on `WorkoutLog` and `BodyWeight`, the `log_workout` and `log_weight` endpoints (accepting valid dates and rejecting future ones), login protection, and the weight-history endpoint. |
+
+All 31 tests pass:
+
+```
+Ran 31 tests in ... s
+
+OK
+```
+
+The tests were added and committed alongside the features they cover, reflecting a test-driven approach that is traceable through the Git commit history.
 
 ---
 
