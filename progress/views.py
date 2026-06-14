@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
@@ -33,6 +33,32 @@ def log_workout(request):
         return JsonResponse({'success': True, 'log_id': log.id})
     logs = WorkoutLog.objects.filter(user=request.user)[:20]
     return render(request, 'progress/log_workout.html', {'logs': logs})
+
+
+@login_required
+def edit_workout(request, pk):
+    log = get_object_or_404(WorkoutLog, pk=pk, user=request.user)
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        log.date = data.get('date', log.date)
+        log.notes = data.get('notes', log.notes)
+        log.completed = data.get('completed', log.completed)
+        try:
+            log.full_clean(exclude=['plan'])
+        except ValidationError as e:
+            return JsonResponse({'success': False, 'errors': e.message_dict}, status=400)
+        log.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'id': log.id, 'date': str(log.date), 'notes': log.notes, 'completed': log.completed})
+
+
+@login_required
+def delete_workout(request, pk):
+    log = get_object_or_404(WorkoutLog, pk=pk, user=request.user)
+    if request.method == 'DELETE':
+        log.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
 @login_required

@@ -27,19 +27,68 @@
 
     <div class="col-md-7">
         <h5>Recent Logs</h5>
-        <ul class="list-group">
+        <ul class="list-group" id="workout-list">
             {% for log in logs %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ log.date }}
-                <span class="text-muted small">{{ log.notes|truncatewords:8 }}</span>
-                <span class="badge {% if log.completed %}bg-success{% else %}bg-secondary{% endif %}">
-                    {% if log.completed %}Done{% else %}Pending{% endif %}
-                </span>
+            <li class="list-group-item d-flex justify-content-between align-items-center" id="log-item-{{ log.id }}">
+                <div>
+                    <div class="fw-semibold">{{ log.date }}</div>
+                    <small class="text-muted">{{ log.notes|truncatewords:8 }}</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge {% if log.completed %}bg-success{% else %}bg-secondary{% endif %}">
+                        {% if log.completed %}Done{% else %}Pending{% endif %}
+                    </span>
+                    <button class="btn btn-sm btn-outline-secondary edit-btn"
+                            data-url="{% url 'edit_workout' pk=log.id %}"
+                            data-date="{{ log.date }}"
+                            data-notes="{{ log.notes }}"
+                            data-completed="{{ log.completed|yesno:'true,false' }}"
+                            title="Edit">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn"
+                            data-url="{% url 'delete_workout' pk=log.id %}"
+                            data-id="{{ log.id }}"
+                            title="Delete">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
             </li>
             {% empty %}
             <li class="list-group-item text-muted">No logs yet.</li>
             {% endfor %}
         </ul>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Workout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="edit-message"></div>
+                <input type="hidden" id="edit-url">
+                <div class="mb-3">
+                    <label class="form-label">Date</label>
+                    <input type="date" id="edit-date" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Notes</label>
+                    <textarea id="edit-notes" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="edit-completed">
+                    <label class="form-check-label" for="edit-completed">Completed</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-dark" id="save-edit-btn">Save Changes</button>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -73,10 +122,74 @@ $('#save-log-btn').on('click', function() {
                 $('#log-message').html('<div class="alert alert-success">Workout saved!</div>');
                 $('#log-notes').val('');
                 $('#log-completed').prop('checked', false);
+                location.reload();
             }
         },
         error: function() {
             $('#log-message').html('<div class="alert alert-danger">Could not save workout. Please check the date.</div>');
+        }
+    });
+});
+
+$(document).on('click', '.edit-btn', function() {
+    var completed = $(this).data('completed');
+    $('#edit-url').val($(this).data('url'));
+    $('#edit-date').val($(this).data('date')).attr('max', today);
+    $('#edit-notes').val($(this).data('notes'));
+    $('#edit-completed').prop('checked', completed === true || completed === 'true');
+    $('#edit-message').html('');
+    $('#editModal').modal('show');
+});
+
+$('#save-edit-btn').on('click', function() {
+    var date = $('#edit-date').val();
+    if (!date) {
+        $('#edit-message').html('<div class="alert alert-warning">Please select a date.</div>');
+        return;
+    }
+    if (date > today) {
+        $('#edit-message').html('<div class="alert alert-warning">Date cannot be in the future.</div>');
+        return;
+    }
+    $.ajax({
+        url: $('#edit-url').val(),
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            date: date,
+            notes: $('#edit-notes').val(),
+            completed: $('#edit-completed').is(':checked'),
+        }),
+        success: function(res) {
+            if (res.success) {
+                $('#editModal').modal('hide');
+                location.reload();
+            }
+        },
+        error: function() {
+            $('#edit-message').html('<div class="alert alert-danger">Could not update workout. Please check the date.</div>');
+        }
+    });
+});
+
+$(document).on('click', '.delete-btn', function() {
+    if (!confirm('Delete this workout?')) return;
+    var url = $(this).data('url');
+    var id = $(this).data('id');
+    $.ajax({
+        url: url,
+        type: 'DELETE',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        success: function(res) {
+            if (res.success) {
+                $('#log-item-' + id).remove();
+                if ($('#workout-list li').length === 0) {
+                    $('#workout-list').html('<li class="list-group-item text-muted">No logs yet.</li>');
+                }
+            }
+        },
+        error: function() {
+            alert('Could not delete workout.');
         }
     });
 });
