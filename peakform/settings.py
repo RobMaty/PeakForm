@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-me-in-production')
 
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app', 'peak-form-iota.vercel.app']
 CSRF_TRUSTED_ORIGINS = ['https://peak-form-iota.vercel.app', 'https://*.vercel.app']
@@ -59,7 +59,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'peakform.wsgi.application'
 
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://neondb_owner:npg_Z3hCLTP6nblg@ep-plain-bonus-anvfu4cd.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require')
+DATABASE_URL = os.environ.get('DATABASE_URL')
 DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
 
 AUTH_PASSWORD_VALIDATORS = [
