@@ -53,6 +53,9 @@
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'progress_dashboard' %}fw-semibold{% endif %}" href="{% url 'progress_dashboard' %}">Progress</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'create_plan' %}fw-semibold{% endif %}" href="{% url 'create_plan' %}">Create Plan</a>
+                </li>
                 {% endif %}
             </ul>
         </div>
