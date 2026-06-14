@@ -475,6 +475,42 @@ textarea.form-control {
     }
 }
 
+.form-page-icon {
+    width: 52px;
+    height: 52px;
+    background: var(--green-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--green-dark);
+}
+
+.form-section-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--green-dark);
+    margin-bottom: 14px;
+}
+
+.form-divider {
+    border-top: 1px solid var(--border);
+    margin: 22px 0;
+}
+
+.pricing-box {
+    background: var(--green-light);
+    border-radius: 14px;
+    padding: 18px 20px;
+}
+
+.pricing-box .form-control {
+    background: #fff !important;
+}
+
 @media (max-width: 991.98px) {
     .user-pill span {
         display: none;

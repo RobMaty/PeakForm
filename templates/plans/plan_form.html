@@ -3,10 +3,13 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-7">
+    <div class="col-lg-6">
 
-        <div class="mb-4">
-            <h1 class="fw-bold mb-1" style="font-size:1.75rem;">
+        <div class="mb-4 text-center">
+            <div class="form-page-icon mx-auto mb-3">
+                <i class="bi bi-{% if action == 'Edit' %}pencil{% else %}lightning-charge{% endif %}"></i>
+            </div>
+            <h1 class="fw-bold mb-1" style="font-size:1.6rem;">
                 {% if action == 'Edit' %}Edit Plan{% else %}Create a New Plan{% endif %}
             </h1>
             <p class="text-muted" style="font-size:0.9rem;">
@@ -26,7 +29,9 @@
             <form method="post" novalidate>
                 {% csrf_token %}
 
-                <div class="mb-4">
+                <p class="form-section-label">Basic Info</p>
+
+                <div class="mb-3">
                     <label class="form-label" for="{{ form.title.id_for_label }}">Plan Title</label>
                     <input type="text"
                            id="{{ form.title.id_for_label }}"
@@ -35,11 +40,11 @@
                            class="form-control{% if form.title.errors %} is-invalid{% endif %}"
                            placeholder="e.g. 12-Week Strength Builder">
                     {% if form.title.errors %}
-                    <div class="invalid-feedback" style="border-radius:0;padding-left:18px;">{{ form.title.errors.0 }}</div>
+                    <div class="invalid-feedback">{{ form.title.errors.0 }}</div>
                     {% endif %}
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-2">
                     <label class="form-label" for="{{ form.description.id_for_label }}">Description</label>
                     <textarea id="{{ form.description.id_for_label }}"
                               name="{{ form.description.html_name }}"
@@ -47,11 +52,14 @@
                               class="form-control{% if form.description.errors %} is-invalid{% endif %}"
                               placeholder="Describe what this plan covers, who it's for, and what results to expect...">{{ form.description.value|default:'' }}</textarea>
                     {% if form.description.errors %}
-                    <div class="invalid-feedback" style="border-radius:0;padding-left:18px;">{{ form.description.errors.0 }}</div>
+                    <div class="invalid-feedback">{{ form.description.errors.0 }}</div>
                     {% endif %}
                 </div>
 
-                <div class="row g-3 mb-4">
+                <div class="form-divider"></div>
+                <p class="form-section-label">Details</p>
+
+                <div class="row g-3 mb-2">
                     <div class="col-sm-6">
                         <label class="form-label" for="{{ form.level.id_for_label }}">Level</label>
                         <select id="{{ form.level.id_for_label }}"
@@ -62,7 +70,7 @@
                             {% endfor %}
                         </select>
                         {% if form.level.errors %}
-                        <div class="invalid-feedback" style="border-radius:0;padding-left:18px;">{{ form.level.errors.0 }}</div>
+                        <div class="invalid-feedback">{{ form.level.errors.0 }}</div>
                         {% endif %}
                     </div>
                     <div class="col-sm-6">
@@ -75,13 +83,16 @@
                                class="form-control{% if form.duration_weeks.errors %} is-invalid{% endif %}"
                                placeholder="4">
                         {% if form.duration_weeks.errors %}
-                        <div class="invalid-feedback" style="border-radius:0;padding-left:18px;">{{ form.duration_weeks.errors.0 }}</div>
+                        <div class="invalid-feedback">{{ form.duration_weeks.errors.0 }}</div>
                         {% endif %}
                     </div>
                 </div>
 
-                <div class="row g-3 mb-4">
-                    <div class="col-sm-6">
+                <div class="form-divider"></div>
+                <p class="form-section-label">Pricing</p>
+
+                <div class="pricing-box mb-2">
+                    <div class="mb-3">
                         <label class="form-label" for="{{ form.price.id_for_label }}">Price ($)</label>
                         <input type="number"
                                id="{{ form.price.id_for_label }}"
@@ -91,22 +102,23 @@
                                class="form-control{% if form.price.errors %} is-invalid{% endif %}"
                                placeholder="0.00">
                         {% if form.price.errors %}
-                        <div class="invalid-feedback" style="border-radius:0;padding-left:18px;">{{ form.price.errors.0 }}</div>
+                        <div class="invalid-feedback">{{ form.price.errors.0 }}</div>
                         {% endif %}
                     </div>
-                    <div class="col-sm-6 d-flex align-items-end pb-1">
-                        <div class="form-check">
-                            <input type="checkbox"
-                                   id="{{ form.is_free.id_for_label }}"
-                                   name="{{ form.is_free.html_name }}"
-                                   class="form-check-input"
-                                   {% if form.is_free.value %}checked{% endif %}>
-                            <label class="form-check-label fw-semibold" for="{{ form.is_free.id_for_label }}" style="font-size:0.88rem;">
-                                Make this plan free
-                            </label>
-                        </div>
+                    <div class="form-check">
+                        <input type="checkbox"
+                               id="{{ form.is_free.id_for_label }}"
+                               name="{{ form.is_free.html_name }}"
+                               class="form-check-input"
+                               {% if form.is_free.value %}checked{% endif %}>
+                        <label class="form-check-label fw-semibold" for="{{ form.is_free.id_for_label }}" style="font-size:0.88rem;">
+                            Make this plan free
+                        </label>
                     </div>
                 </div>
+
+                <div class="form-divider"></div>
+                <p class="form-section-label">Media</p>
 
                 <div class="mb-5">
                     <label class="form-label" for="{{ form.image_url.id_for_label }}">Cover Image URL <span class="text-muted fw-normal">(optional)</span></label>
@@ -117,7 +129,7 @@
                            class="form-control{% if form.image_url.errors %} is-invalid{% endif %}"
                            placeholder="https://example.com/image.jpg">
                     {% if form.image_url.errors %}
-                    <div class="invalid-feedback" style="border-radius:0;padding-left:18px;">{{ form.image_url.errors.0 }}</div>
+                    <div class="invalid-feedback">{{ form.image_url.errors.0 }}</div>
                     {% endif %}
                 </div>
 
@@ -131,6 +143,7 @@
 
             </form>
         </div>
+
     </div>
 </div>
 {% endblock %}
