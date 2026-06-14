@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import Plan, UserPlan
+from .forms import PlanForm
 
 
 def landing(request):
@@ -41,3 +42,32 @@ def enroll_plan(request, pk):
 def my_plans(request):
     user_plans = UserPlan.objects.filter(user=request.user, is_active=True).select_related('plan')
     return render(request, 'plans/my_plans.html', {'user_plans': user_plans})
+
+
+@login_required
+def create_plan(request):
+    if request.method == 'POST':
+        form = PlanForm(request.POST)
+        if form.is_valid():
+            plan = form.save(commit=False)
+            plan.created_by = request.user
+            plan.save()
+            messages.success(request, f'Plan "{plan.title}" created successfully!')
+            return redirect('plan_detail', pk=plan.pk)
+    else:
+        form = PlanForm()
+    return render(request, 'plans/plan_form.html', {'form': form, 'action': 'Create'})
+
+
+@login_required
+def edit_plan(request, pk):
+    plan = get_object_or_404(Plan, pk=pk, created_by=request.user)
+    if request.method == 'POST':
+        form = PlanForm(request.POST, instance=plan)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Plan "{plan.title}" updated successfully!')
+            return redirect('plan_detail', pk=plan.pk)
+    else:
+        form = PlanForm(instance=plan)
+    return render(request, 'plans/plan_form.html', {'form': form, 'action': 'Edit', 'plan': plan})
