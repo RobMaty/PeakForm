@@ -8,6 +8,8 @@ from .models import Profile
 
 
 def register(request):
+    if request.user.is_authenticated:
+        return redirect('home')
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
